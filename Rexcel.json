@@ -1,0 +1,555 @@
+{
+  "name": "My workflow 141027",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1888,
+        160
+      ],
+      "id": "eb80b16c-f53b-4e4f-bc50-a756c2ac69a1",
+      "name": "When chat message received",
+      "webhookId": "239dcb49-52f3-450f-8dbe-8af32b0fb753"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1376,
+        528
+      ],
+      "id": "0d6c0256-1e17-4965-bfe4-e9f7ef42db68",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "IAGyfRd7iuXeTSUp",
+          "name": "OpenAi account 23062091"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.chatInput }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Chưa vào ",
+              "description": "Là các câu hỏi không liên quan đến công nợ lời chào, câu hỏi chưa rõ ràng.|ví dụ : cho mình hỏi xí Chào bạn"
+            },
+            {
+              "category": "Hợp Đồng",
+              "description": "Đây là các công nợ của khách hàng vd như thông tin , số tiền ,phát sinh , ghi chú"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -1264,
+        320
+      ],
+      "id": "a700766b-137d-4e1e-98d6-08f6528a8d83",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.chatInput  }} ||  {{$json.chatInput}}",
+        "options": {
+          "systemMessage": "=Các câu hỏi không liên quan đến hợp đồng thì trả lời như sau : \n2. Hỏi lĩnh vực khác -> Xin lỗi tôi ko có nghĩa vụ phải trả lời. Bạn làm ơn hỏi đúng trọng tâm hoá đon\n3. Néu giới thiệu bản thân hay xin chào thì đáp -> xin chào anh em có thể giúp gì được cho a\nBẮC BUỘC PHẢI TRẢ LỜI ĐÚNG NHA, KHÔNG CÓ LAN MANCác câu hỏi không liên quan đến hợp đồng thì trả lời như sau : \n + Hỏi lĩnh vực khác -> Xin lỗi tôi ko có nghĩa vụ phải trả lời. Bạn làm ơn hỏi đúng trọng tâm hoá đơn\n +. Néu giới thiệu bản thân hay xin chào thì đáp -> xin chào anh em có thể giúp gì được cho a\nBẮC BUỘC PHẢI TRẢ LỜI ĐÚNG NHA, KHÔNG CÓ LAN MAN\n\n",
+          "passthroughBinaryImages": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        0,
+        0
+      ],
+      "id": "88c68d66-94c4-42ac-ba49-5b69d55c0904",
+      "name": "Trợ Lý Nhi"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -112,
+        176
+      ],
+      "id": "f1faf720-112d-4af4-a55c-28ce68ac1074",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "IAGyfRd7iuXeTSUp",
+          "name": "OpenAi account 23062091"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "assitantcontract",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1904,
+        480
+      ],
+      "id": "ef827f48-24b1-4fc8-a766-a036efb8046c",
+      "name": "Webhook",
+      "webhookId": "0991f792-7570-4278-bd25-867cd1bd3f59"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d1850696-b083-45f3-87fe-6f10fc585386",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }} || {{json.body.sessionId}}",
+              "type": "string"
+            },
+            {
+              "id": "0189a317-6d43-4715-bf70-18b0ef2cef2a",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }} || {{ $json.body.chatInput  }} ",
+              "type": "string"
+            },
+            {
+              "id": "296df3a4-84ef-49dd-9042-beee9c19e796",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1472,
+        320
+      ],
+      "id": "525d31f8-e78c-4fb4-bb72-faa385c43a13",
+      "name": "Data"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1856,
+        336
+      ],
+      "id": "a172ec54-644f-49a9-8247-4e7e2cc7765a",
+      "name": "Respond to Webhook3"
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "for item in _input.all():\n    if 'output' in item.json:\n        item.json['contract'] = item.json['output']\n        del item.json['output']\nreturn _input.all()\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        576,
+        0
+      ],
+      "id": "17160c6c-8352-422f-97c4-37a2371ace23",
+      "name": "Formant dữ liệu cho giống với phía dưới",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -176,
+        688
+      ],
+      "id": "9d2fbcbe-43a0-48f2-a528-24b93df0a209",
+      "name": "OpenAI Chat Model9",
+      "credentials": {
+        "openAiApi": {
+          "id": "IAGyfRd7iuXeTSUp",
+          "name": "OpenAi account 23062091"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.chatInput }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "khach_hang",
+              "description": "Đây là khách hàng có phát sinh công nợ"
+            },
+            {
+              "name": "ly_do_no",
+              "description": "Lý do tại sao khách hàng nợ "
+            },
+            {
+              "name": "so_tien_no",
+              "description": "số tiền nợ là bao nhiêu "
+            },
+            {
+              "name": "ngay_hen_tra",
+              "description": "Khách hàng hẹn khi nào trả ?"
+            },
+            {
+              "name": "ghi_chu_them",
+              "description": "Các thông tin ghi chú thêm ví dụ: Đã Thanh toán , chưa thanh toán, còn nợ b ao nhiêu"
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": ""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -160,
+        384
+      ],
+      "id": "6b0e3478-0d93-41ce-887e-cd7b017050b2",
+      "name": "Phân Loại Hoá Đơn"
+    },
+    {
+      "parameters": {
+        "resource": "worksheet",
+        "operation": "append",
+        "workbook": {
+          "__rl": true,
+          "value": "5BA0F9856B507833!s0c0eafc5c9144b16afb8d88d46bca4d4",
+          "mode": "list",
+          "cachedResultName": "Tinh_Cong_No",
+          "cachedResultUrl": "https://onedrive.live.com/personal/5ba0f9856b507833/_layouts/15/doc.aspx?resid=0c0eafc5-c914-4b16-afb8-d88d46bca4d4&cid=5ba0f9856b507833"
+        },
+        "worksheet": {
+          "__rl": true,
+          "value": "{00000000-0001-0000-0000-000000000000}",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://onedrive.live.com/personal/5ba0f9856b507833/_layouts/15/doc.aspx?resid=f67b330e-109f-4c9f-9561-fff087f030d5&cid=5ba0f9856b507833&activeCell=Sheet1!A1"
+        },
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "Tên Khách hàng",
+              "fieldValue": "={{ $json.output.khach_hang }}"
+            },
+            {
+              "column": "Nợ tiền hàng gì ?",
+              "fieldValue": "={{ $json.output.ly_do_no }}"
+            },
+            {
+              "column": "Số tiền nợ",
+              "fieldValue": "={{ $json.output.so_tien_no }}"
+            },
+            {
+              "column": "Ngày Hẹn Trả Nợ",
+              "fieldValue": "={{ $json.output.ngay_hen_tra }}"
+            },
+            {
+              "column": "Ghi chú",
+              "fieldValue": "={{ $json.output.ghi_chu_them }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.microsoftExcel",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        384
+      ],
+      "id": "3897abb2-bfd8-4ef2-9ba5-c47daf9b8777",
+      "name": "Append data to sheet",
+      "credentials": {
+        "microsoftExcelOAuth2Api": {
+          "id": "eIyvrHUclDLkWain",
+          "name": "Microsoft Excel account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Dựa vào cái Promp. Bạn hãy thống kê hoá đơn của khách hàng cho nó đẹp đi nha"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        976,
+        384
+      ],
+      "id": "c1e5543b-02e6-4a96-a6de-7717ad973621",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        400,
+        384
+      ],
+      "id": "bbf8f802-778b-4af6-b360-c631108ff911",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        912,
+        592
+      ],
+      "id": "857fde42-3ccf-488a-8841-b23a6a994241",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "IAGyfRd7iuXeTSUp",
+          "name": "OpenAi account 23062091"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Trợ Lý Nhi",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Phân Loại Hoá Đơn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trợ Lý Nhi": {
+      "main": [
+        [
+          {
+            "node": "Formant dữ liệu cho giống với phía dưới",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Trợ Lý Nhi",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formant dữ liệu cho giống với phía dưới": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model9": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Phân Loại Hoá Đơn",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Phân Loại Hoá Đơn": {
+      "main": [
+        [
+          {
+            "node": "Append data to sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append data to sheet": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook3": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1cdcaa18-3cbd-4c24-bcc0-0c67862ffd4e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "94a383c02457267bcc44878635a0fa02b7d3206c5479bfc8890faa812e2bbd97"
+  },
+  "id": "sCDJ3pgXQIkwLZpq",
+  "tags": []
+}
